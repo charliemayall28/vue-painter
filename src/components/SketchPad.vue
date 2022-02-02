@@ -14,6 +14,22 @@
           class="col-sm-12"
           style="display: flex; justify-content: space-evenly"
         >
+          <!-- make an input for selecting an image -->
+          <form id="imageForm" enctype="multipart/form-data">
+            <div>
+              <label for="file">Choose file to upload</label>
+              <input
+                @input="uploadFile($event)"
+                type="file"
+                id="imageInput"
+                name="file"
+                multiple
+              />
+            </div>
+            <div>
+              <button @click="setCanvasBackground($event)">Submit</button>
+            </div>
+          </form>
           <ControlButton
             id="'clear'"
             @click="clear()"
@@ -92,7 +108,7 @@
         </div>
         <div class="col-sm-12">
           <Slider
-            id="hi"
+            id="slider"
             lineColor="purple"
             @sliderChange="sliderChange($event)"
             :vertical="false"
@@ -103,10 +119,7 @@
     </div>
     <div>
       <div class="col-sm-12 left">
-        <canvas
-          id="canvas"
-          style="border: 1px solid #d3d3d3; background-color: white"
-        >
+        <canvas id="canvas" style="border: 1px solid #d3d3d3; cursor: pointer">
           >
         </canvas>
         <ColorToggle
@@ -114,6 +127,18 @@
           @clickColor="setColor($event)"
         />
       </div>
+      <!-- <div class="col-sm-12 left">
+        <ScrollPanCanvas
+          @mousedown="checkDrag(event)"
+          @mousemove="checkDrag()"
+          :parentDisable="this.sketchDisabled"
+        />
+
+        <ColorToggle
+          :colors="this.colorOptions"
+          @clickColor="setColor($event)"
+        />
+      </div> -->
     </div>
   </div>
 </template>
@@ -123,6 +148,7 @@ const Atrament = require("atrament");
 import ColorToggle from "./colorToggle.vue";
 import Slider from "./slider.vue";
 import ControlButton from "./ControlButton.vue";
+import ScrollPanCanvas from "./ScrollPanCanvas.vue";
 import axios from "axios";
 export default {
   name: "SketchPad",
@@ -130,12 +156,14 @@ export default {
     ControlButton,
     Slider,
     ColorToggle,
+    ScrollPanCanvas,
   },
   data() {
     return {
       pixelArray: [],
       sketchpad: null,
       canvas: null,
+      sketchDisabled: true,
       lineWeight: 1,
       prevStrokeLengths: [],
       strokes: [],
@@ -218,6 +246,7 @@ export default {
     let colorBtn = document.getElementById("orange");
     colorBtn.click();
     this.setBrush("draw");
+
     // send a post request to /submit on port 5000 with the json '{"brush": this.brush}'
     // this.brush = "draw";
   },
@@ -274,6 +303,7 @@ export default {
       }
 
       this.sketchpad.endStroke(prevPoint.x, prevPoint.y);
+      this.setCursor();
     },
 
     redo() {
@@ -338,6 +368,36 @@ export default {
       let gcode = await _makeGcode(this);
       await navigator.clipboard.writeText(gcode);
       window.open("http://ncviewer.com/");
+    },
+    setCursor() {
+      // set the cursor shown on the canvas to be a circle
+      this.canvas.style.cursor = "pointer";
+    },
+    uploadFile(event) {
+      console.log(event);
+      let file = event.target.files[0];
+      console.log(file);
+      let reader = new FileReader();
+      reader.onload = (e) => {
+        let dataURL = e.target.result;
+        let img = new Image();
+        img.src = dataURL;
+        let canvas = document.getElementById("canvas");
+
+        let ctx = canvas.getContext("2d");
+        // if the image is narrower than the canvas, make it wider, and change the height accordingly
+
+        // console.log(canvas.width, img.width);
+        // if (img.width < canvas.width) {
+        //   img.width = canvas.width;
+        //   img.height = img.height * (canvas.width / img.width);
+        // }
+
+        canvas.style.backgroundImage = "url(" + dataURL + ")";
+        // canvas.style.backgroundSize = "cover";
+        canvas.style.backgroundRepeat = "no-repeat";
+      };
+      reader.readAsDataURL(file);
     },
   },
 };

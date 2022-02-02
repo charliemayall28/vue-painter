@@ -8,6 +8,7 @@
       crossorigin="anonymous"
     />
     <SketchPad />
+    <!-- <ScrollPanCanvas /> -->
   </div>
 </template>
 
@@ -27,10 +28,12 @@
 <script>
 // @ is an alias to /src
 import SketchPad from "@/components/SketchPad.vue";
+import ScrollPanCanvas from "@/components/ScrollPanCanvas.vue";
 export default {
   name: "Home",
   components: {
     SketchPad,
+    ScrollPanCanvas,
   },
 };
 </script>

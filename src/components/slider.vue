@@ -121,16 +121,18 @@ export default {
   },
   mounted() {
     this.sliderValue = this.start;
-    let slider = document.getElementById(this.id);
-    slider.style.background = this.lineColor;
-    slider.style.setProperty("--thumbColor", this.buttonColor);
-    if (this.vertical == true) {
-      let container = document.getElementsByClassName("container")[0];
-      container.style.transform = "rotate(90deg)";
-      let text = document.getElementsByClassName("sliderContainer");
+    setTimeout(() => {
+      let slider = document.getElementById(this.id);
+      slider.style.background = this.lineColor;
+      slider.style.setProperty("--thumbColor", this.buttonColor);
+      if (this.vertical == true) {
+        let container = document.getElementsByClassName("container")[0];
+        container.style.transform = "rotate(90deg)";
+        let text = document.getElementsByClassName("sliderContainer");
 
-      text[0].style.transform = "rotate(-90deg)";
-    }
+        text[0].style.transform = "rotate(-90deg)";
+      }
+    }, 200);
   },
 };
 </script>
